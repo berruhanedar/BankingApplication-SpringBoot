@@ -45,6 +45,4 @@ public class CreateUserRequestDTO {
     @Size(max = 20, message = "Alternative phone number cannot exceed 20 characters")
     private String alternativePhoneNumber;
 
-    @Size(max = 20, message = "Status cannot exceed 20 characters")
-    private String status;
 }
