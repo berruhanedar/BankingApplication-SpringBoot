@@ -1,8 +1,6 @@
 package com.berru.app.bankingapplication.service.impl;
 
-import com.berru.app.bankingapplication.dto.BankResponse;
-import com.berru.app.bankingapplication.dto.CreateUserRequestDTO;
-import com.berru.app.bankingapplication.dto.EmailDetails;
+import com.berru.app.bankingapplication.dto.*;
 import com.berru.app.bankingapplication.entity.User;
 import com.berru.app.bankingapplication.exception.BadRequestException;
 import com.berru.app.bankingapplication.mapper.EmailMapper;
@@ -45,5 +43,27 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.toBankResponse(savedUser);
 
+    }
+
+    @Override
+    public BankResponse balanceEnquiry(String accountNumber) {
+        boolean isAccountExist = userRepository.existsByAccountNumber(accountNumber);
+        if (!isAccountExist) {
+            throw new BadRequestException("This account does not exist!");
+        }
+
+        User foundUser = userRepository.findByAccountNumber(accountNumber);
+        return userMapper.toBankResponse(foundUser);
+    }
+
+    @Override
+    public String nameEnquiry(String accountNumber) {
+        boolean isAccountExist = userRepository.existsByAccountNumber(accountNumber);
+        if (!isAccountExist) {
+            throw new BadRequestException("This account does not exist!");
+        }
+
+        User foundUser = userRepository.findByAccountNumber(accountNumber);
+        return foundUser.getFirstName() + " " + foundUser.getLastName() + " " + foundUser.getOtherName();
     }
 }
