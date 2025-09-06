@@ -5,5 +5,6 @@ import com.berru.app.bankingapplication.dto.CreateUserRequestDTO;
 
 public interface UserService {
     BankResponse createAccount(CreateUserRequestDTO createUserRequestDTO);
-
+    BankResponse balanceEnquiry(String accountNumber);
+    String nameEnquiry(String accountNumber);
 }
