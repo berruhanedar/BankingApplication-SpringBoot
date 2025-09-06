@@ -17,4 +17,14 @@ public class UserController {
     public BankResponse createAccount(@RequestBody CreateUserRequestDTO createUserRequestDTO) {
         return userService.createAccount(createUserRequestDTO);
     }
+
+    @GetMapping("/balanceEnquiry/{accountNumber}")
+    public BankResponse balanceEnquiry(@PathVariable String accountNumber) {
+        return userService.balanceEnquiry(accountNumber);
+    }
+
+    @GetMapping("/nameEnquiry/{accountNumber}")
+    public String nameEnquiry(@PathVariable String accountNumber) {
+        return userService.nameEnquiry(accountNumber);
+    }
 }
