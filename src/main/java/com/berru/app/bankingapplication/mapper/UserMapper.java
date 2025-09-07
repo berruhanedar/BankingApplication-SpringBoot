@@ -1,9 +1,6 @@
 package com.berru.app.bankingapplication.mapper;
 
-import com.berru.app.bankingapplication.dto.AccountInfo;
-import com.berru.app.bankingapplication.dto.BankResponse;
-import com.berru.app.bankingapplication.dto.CreateUserRequestDTO;
-import com.berru.app.bankingapplication.dto.UserResponseDTO;
+import com.berru.app.bankingapplication.dto.*;
 import com.berru.app.bankingapplication.entity.User;
 import com.berru.app.bankingapplication.utils.AccountUtils;
 import org.mapstruct.Mapper;
@@ -30,5 +27,13 @@ public interface UserMapper {
     @Mapping(target = "responseMessage", constant = "Account created successfully!")
     @Mapping(target = "accountInfo", expression = "java(toAccountInfo(user))")
     BankResponse toBankResponse(User user);
+
+    @Mapping(target = "responseMessage", constant = "Account credited successfully!")
+    @Mapping(target = "accountInfo", expression = "java(new AccountInfo("
+            + "user.getFirstName() + \" \" + user.getLastName(), "
+            + "user.getAccountBalance(), "
+            + "creditDebitRequest.getAccountNumber()))")
+    BankResponse toCreditResponse(User user, CreditDebitRequest creditDebitRequest);
+
 }
 
