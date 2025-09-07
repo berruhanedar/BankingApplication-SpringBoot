@@ -2,6 +2,7 @@ package com.berru.app.bankingapplication.controller;
 
 import com.berru.app.bankingapplication.dto.BankResponse;
 import com.berru.app.bankingapplication.dto.CreateUserRequestDTO;
+import com.berru.app.bankingapplication.dto.CreditDebitRequest;
 import com.berru.app.bankingapplication.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,5 +27,10 @@ public class UserController {
     @GetMapping("/nameEnquiry/{accountNumber}")
     public String nameEnquiry(@PathVariable String accountNumber) {
         return userService.nameEnquiry(accountNumber);
+    }
+
+    @PostMapping("/credit")
+    public BankResponse creditAccount(@RequestBody CreditDebitRequest creditDebitRequest) {
+        return userService.creditAccount(creditDebitRequest);
     }
 }
