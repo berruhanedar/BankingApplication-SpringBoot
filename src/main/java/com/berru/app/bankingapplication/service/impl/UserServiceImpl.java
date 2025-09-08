@@ -3,6 +3,7 @@ package com.berru.app.bankingapplication.service.impl;
 import com.berru.app.bankingapplication.dto.*;
 import com.berru.app.bankingapplication.entity.User;
 import com.berru.app.bankingapplication.exception.BadRequestException;
+import com.berru.app.bankingapplication.exception.InsufficientBalanceException;
 import com.berru.app.bankingapplication.mapper.EmailMapper;
 import com.berru.app.bankingapplication.mapper.UserMapper;
 import com.berru.app.bankingapplication.repository.UserRepository;
@@ -81,5 +82,22 @@ public class UserServiceImpl implements UserService {
         userRepository.save(userToCredit);
 
         return userMapper.toCreditResponse(userToCredit, creditDebitRequest);
+    }
+
+    @Override
+    public BankResponse debitAccount(CreditDebitRequest creditDebitRequest) {
+        boolean isAccountExist = userRepository.existsByAccountNumber(creditDebitRequest.getAccountNumber());
+        if (!isAccountExist) {
+            throw new BadRequestException("This account does not exist!");
+        }
+
+        User userToDebit = userRepository.findByAccountNumber(creditDebitRequest.getAccountNumber());
+        if (userToDebit.getAccountBalance().compareTo(creditDebitRequest.getAmount()) < 0) {
+            throw new InsufficientBalanceException("Insufficient balance!");
+        } else {
+            userToDebit.setAccountBalance(userToDebit.getAccountBalance().subtract(creditDebitRequest.getAmount()));
+            userRepository.save(userToDebit);
+            return userMapper.toBankResponse(userToDebit);
+        }
     }
 }
