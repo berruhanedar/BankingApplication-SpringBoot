@@ -29,11 +29,13 @@ public interface UserMapper {
     BankResponse toBankResponse(User user);
 
     @Mapping(target = "responseMessage", constant = "Account credited successfully!")
-    @Mapping(target = "accountInfo", expression = "java(new AccountInfo("
-            + "user.getFirstName() + \" \" + user.getLastName(), "
-            + "user.getAccountBalance(), "
-            + "creditDebitRequest.getAccountNumber()))")
+    @Mapping(target = "accountInfo", expression = "java(new AccountInfo(" +
+            "user.getFirstName() + \" \" + user.getLastName(), " +
+            "user.getAccountBalance(), " +
+            "creditDebitRequest.getAccountNumber()))")
     BankResponse toCreditResponse(User user, CreditDebitRequest creditDebitRequest);
 
+    @Mapping(target = "responseMessage", constant = "Transfer completed successfully!")
+    @Mapping(target = "accountInfo", expression = "java(toAccountInfo(sourceAccountUser))")
+    BankResponse toTransferResponse(User sourceAccountUser);
 }
-
