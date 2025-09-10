@@ -3,7 +3,7 @@ package com.berru.app.bankingapplication.service.impl;
 import com.berru.app.bankingapplication.dto.BankResponseDTO;
 import com.berru.app.bankingapplication.dto.CreateUserRequestDTO;
 import com.berru.app.bankingapplication.dto.CreditDebitRequestDTO;
-import com.berru.app.bankingapplication.dto.TransferInfo;
+import com.berru.app.bankingapplication.dto.TransferInfoRequestDTO;
 
 public interface UserService {
     BankResponseDTO createAccount(CreateUserRequestDTO createUserRequestDTO);
@@ -11,5 +11,5 @@ public interface UserService {
     String nameEnquiry(String accountNumber);
     BankResponseDTO creditAccount(CreditDebitRequestDTO creditDebitRequestDTO);
     BankResponseDTO debitAccount(CreditDebitRequestDTO creditDebitRequestDTO);
-    BankResponseDTO transfer(TransferInfo transferInfo);
+    BankResponseDTO transfer(TransferInfoRequestDTO transferInfoRequestDTO);
 }

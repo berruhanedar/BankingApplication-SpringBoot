@@ -3,7 +3,7 @@ package com.berru.app.bankingapplication.controller;
 import com.berru.app.bankingapplication.dto.BankResponseDTO;
 import com.berru.app.bankingapplication.dto.CreateUserRequestDTO;
 import com.berru.app.bankingapplication.dto.CreditDebitRequestDTO;
-import com.berru.app.bankingapplication.dto.TransferInfo;
+import com.berru.app.bankingapplication.dto.TransferInfoRequestDTO;
 import com.berru.app.bankingapplication.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -51,8 +51,8 @@ public class UserController {
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<BankResponseDTO> transfer(@RequestBody TransferInfo transferInfo) {
-        BankResponseDTO response = userService.transfer(transferInfo);
+    public ResponseEntity<BankResponseDTO> transfer(@RequestBody TransferInfoRequestDTO transferInfoRequestDTO) {
+        BankResponseDTO response = userService.transfer(transferInfoRequestDTO);
         return ResponseEntity.ok(response);
     }
 }

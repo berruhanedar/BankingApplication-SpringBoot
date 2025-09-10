@@ -105,29 +105,29 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public BankResponseDTO transfer(TransferInfo transferInfo) {
-        User sourceAccountUser = userRepository.findByAccountNumber(transferInfo.getSourceAccountNumber())
+    public BankResponseDTO transfer(TransferInfoRequestDTO transferInfoRequestDTO) {
+        User sourceAccountUser = userRepository.findByAccountNumber(transferInfoRequestDTO.getSourceAccountNumber())
                 .orElseThrow(() -> new SourceAccountNotFoundException("Source account does not exist!"));
 
-        User destinationAccountUser = userRepository.findByAccountNumber(transferInfo.getDestinationAccountNumber())
+        User destinationAccountUser = userRepository.findByAccountNumber(transferInfoRequestDTO.getDestinationAccountNumber())
                 .orElseThrow(() -> new DestinationAccountNotFoundException("Destination account does not exist!"));
 
-        if (transferInfo.getAmount().compareTo(sourceAccountUser.getAccountBalance()) > 0) {
+        if (transferInfoRequestDTO.getAmount().compareTo(sourceAccountUser.getAccountBalance()) > 0) {
             throw new InsufficientBalanceException("Insufficient balance!");
         }
 
         sourceAccountUser.setAccountBalance(
-                sourceAccountUser.getAccountBalance().subtract(transferInfo.getAmount())
+                sourceAccountUser.getAccountBalance().subtract(transferInfoRequestDTO.getAmount())
         );
 
         destinationAccountUser.setAccountBalance(
-                destinationAccountUser.getAccountBalance().add(transferInfo.getAmount())
+                destinationAccountUser.getAccountBalance().add(transferInfoRequestDTO.getAmount())
         );
 
         userRepository.save(sourceAccountUser);
         userRepository.save(destinationAccountUser);
 
-        TransactionRequestDTO transactionRequestDTO = userMapper.toTransactionRequestDTO(sourceAccountUser, transferInfo.getAmount());
+        TransactionRequestDTO transactionRequestDTO = userMapper.toTransactionRequestDTO(sourceAccountUser, transferInfoRequestDTO.getAmount());
         transactionService.saveTransaction(transactionRequestDTO);
 
         return userMapper.toTransferResponse(sourceAccountUser);
