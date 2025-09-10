@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BankResponse {
+public class BankResponseDTO {
 
     private String responseMessage;
 
