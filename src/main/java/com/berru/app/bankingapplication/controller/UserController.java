@@ -1,8 +1,8 @@
 package com.berru.app.bankingapplication.controller;
 
-import com.berru.app.bankingapplication.dto.BankResponse;
+import com.berru.app.bankingapplication.dto.BankResponseDTO;
 import com.berru.app.bankingapplication.dto.CreateUserRequestDTO;
-import com.berru.app.bankingapplication.dto.CreditDebitRequest;
+import com.berru.app.bankingapplication.dto.CreditDebitRequestDTO;
 import com.berru.app.bankingapplication.dto.TransferInfo;
 import com.berru.app.bankingapplication.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +21,14 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<BankResponse> createAccount(@RequestBody CreateUserRequestDTO createUserRequestDTO) {
-        BankResponse response = userService.createAccount(createUserRequestDTO);
+    public ResponseEntity<BankResponseDTO> createAccount(@RequestBody CreateUserRequestDTO createUserRequestDTO) {
+        BankResponseDTO response = userService.createAccount(createUserRequestDTO);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/balanceEnquiry/{accountNumber}")
-    public ResponseEntity<BankResponse> balanceEnquiry(@PathVariable String accountNumber) {
-        BankResponse response = userService.balanceEnquiry(accountNumber);
+    public ResponseEntity<BankResponseDTO> balanceEnquiry(@PathVariable String accountNumber) {
+        BankResponseDTO response = userService.balanceEnquiry(accountNumber);
         return ResponseEntity.ok(response);
     }
 
@@ -39,20 +39,20 @@ public class UserController {
     }
 
     @PostMapping("/credit")
-    public ResponseEntity<BankResponse> creditAccount(@RequestBody CreditDebitRequest creditDebitRequest) {
-        BankResponse response = userService.creditAccount(creditDebitRequest);
+    public ResponseEntity<BankResponseDTO> creditAccount(@RequestBody CreditDebitRequestDTO creditDebitRequestDTO) {
+        BankResponseDTO response = userService.creditAccount(creditDebitRequestDTO);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/debit")
-    public ResponseEntity<BankResponse> debitAccount(@RequestBody CreditDebitRequest creditDebitRequest) {
-        BankResponse response = userService.debitAccount(creditDebitRequest);
+    public ResponseEntity<BankResponseDTO> debitAccount(@RequestBody CreditDebitRequestDTO creditDebitRequestDTO) {
+        BankResponseDTO response = userService.debitAccount(creditDebitRequestDTO);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<BankResponse> transfer(@RequestBody TransferInfo transferInfo) {
-        BankResponse response = userService.transfer(transferInfo);
+    public ResponseEntity<BankResponseDTO> transfer(@RequestBody TransferInfo transferInfo) {
+        BankResponseDTO response = userService.transfer(transferInfo);
         return ResponseEntity.ok(response);
     }
 }
