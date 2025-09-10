@@ -6,6 +6,8 @@ import com.berru.app.bankingapplication.utils.AccountUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.math.BigDecimal;
+
 @Mapper(componentModel = "spring", imports = AccountUtils.class)
 public interface UserMapper {
 
@@ -26,16 +28,22 @@ public interface UserMapper {
 
     @Mapping(target = "responseMessage", constant = "Account created successfully!")
     @Mapping(target = "accountInfo", expression = "java(toAccountInfo(user))")
-    BankResponse toBankResponse(User user);
+    BankResponseDTO toBankResponse(User user);
 
     @Mapping(target = "responseMessage", constant = "Account credited successfully!")
     @Mapping(target = "accountInfo", expression = "java(new AccountInfo(" +
             "user.getFirstName() + \" \" + user.getLastName(), " +
             "user.getAccountBalance(), " +
-            "creditDebitRequest.getAccountNumber()))")
-    BankResponse toCreditResponse(User user, CreditDebitRequest creditDebitRequest);
+            "creditDebitRequestDTO.getAccountNumber()))")
+    BankResponseDTO toCreditResponse(User user, CreditDebitRequestDTO creditDebitRequestDTO);
 
     @Mapping(target = "responseMessage", constant = "Transfer completed successfully!")
     @Mapping(target = "accountInfo", expression = "java(toAccountInfo(sourceAccountUser))")
-    BankResponse toTransferResponse(User sourceAccountUser);
+    BankResponseDTO toTransferResponse(User sourceAccountUser);
+
+    @Mapping(target = "accountNumber", source = "user.accountNumber")
+    @Mapping(target = "amount", source = "amount")
+    @Mapping(target = "transactionType", constant = "CREDIT")
+    @Mapping(target = "status", constant = "SUCCESS")
+    TransactionRequestDTO toTransactionRequestDTO(User user, BigDecimal amount);
 }
