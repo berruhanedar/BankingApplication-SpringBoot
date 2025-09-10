@@ -1,6 +1,5 @@
 package com.berru.app.bankingapplication.dto;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
