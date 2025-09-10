@@ -8,6 +8,7 @@ import com.berru.app.bankingapplication.exception.InsufficientBalanceException;
 import com.berru.app.bankingapplication.exception.SourceAccountNotFoundException;
 import com.berru.app.bankingapplication.mapper.EmailMapper;
 import com.berru.app.bankingapplication.mapper.UserMapper;
+import com.berru.app.bankingapplication.repository.TransactionRepository;
 import com.berru.app.bankingapplication.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +21,22 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final EmailMapper emailMapper;
+    private final TransactionService transactionService;
+    private final TransactionRepository transactionRepository;
 
     @Autowired
     public UserServiceImpl(UserMapper userMapper, UserRepository userRepository,
-                           EmailService emailService, EmailMapper emailMapper) {
+                           EmailService emailService, EmailMapper emailMapper, TransactionService transactionService, TransactionRepository transactionRepository) {
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.emailMapper = emailMapper;
+        this.transactionService = transactionService;
+        this.transactionRepository = transactionRepository;
     }
 
     @Override
-    public BankResponse createAccount(CreateUserRequestDTO createUserRequestDTO) {
+    public BankResponseDTO createAccount(CreateUserRequestDTO createUserRequestDTO) {
         if (userRepository.existsByEmail(createUserRequestDTO.getEmail())) {
             throw new BadRequestException("This user already has an account created!");
         }
@@ -46,7 +51,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BankResponse balanceEnquiry(String accountNumber) {
+    public BankResponseDTO balanceEnquiry(String accountNumber) {
         User foundUser = userRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new BadRequestException("This account does not exist!"));
 
@@ -62,30 +67,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BankResponse creditAccount(CreditDebitRequest creditDebitRequest) {
-        User userToCredit = userRepository.findByAccountNumber(creditDebitRequest.getAccountNumber())
+    public BankResponseDTO creditAccount(CreditDebitRequestDTO creditDebitRequestDTO) {
+        User userToCredit = userRepository.findByAccountNumber(creditDebitRequestDTO.getAccountNumber())
                 .orElseThrow(() -> new BadRequestException("This account does not exist!"));
 
         userToCredit.setAccountBalance(
-                userToCredit.getAccountBalance().add(creditDebitRequest.getAmount())
+                userToCredit.getAccountBalance().add(creditDebitRequestDTO.getAmount())
         );
 
         userRepository.save(userToCredit);
 
-        return userMapper.toCreditResponse(userToCredit, creditDebitRequest);
+        TransactionRequestDTO transactionRequestDTO = userMapper.toTransactionRequestDTO(
+                userToCredit, creditDebitRequestDTO.getAmount()
+        );
+
+
+        return userMapper.toCreditResponse(userToCredit, creditDebitRequestDTO);
     }
 
     @Override
-    public BankResponse debitAccount(CreditDebitRequest creditDebitRequest) {
-        User userToDebit = userRepository.findByAccountNumber(creditDebitRequest.getAccountNumber())
+    public BankResponseDTO debitAccount(CreditDebitRequestDTO creditDebitRequestDTO) {
+        User userToDebit = userRepository.findByAccountNumber(creditDebitRequestDTO.getAccountNumber())
                 .orElseThrow(() -> new BadRequestException("This account does not exist!"));
 
-        if (userToDebit.getAccountBalance().compareTo(creditDebitRequest.getAmount()) < 0) {
+        if (userToDebit.getAccountBalance().compareTo(creditDebitRequestDTO.getAmount()) < 0) {
             throw new InsufficientBalanceException("Insufficient balance!");
         }
 
         userToDebit.setAccountBalance(
-                userToDebit.getAccountBalance().subtract(creditDebitRequest.getAmount())
+                userToDebit.getAccountBalance().subtract(creditDebitRequestDTO.getAmount())
         );
 
         userRepository.save(userToDebit);
@@ -95,7 +105,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public BankResponse transfer(TransferInfo transferInfo) {
+    public BankResponseDTO transfer(TransferInfo transferInfo) {
         User sourceAccountUser = userRepository.findByAccountNumber(transferInfo.getSourceAccountNumber())
                 .orElseThrow(() -> new SourceAccountNotFoundException("Source account does not exist!"));
 
@@ -116,6 +126,9 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(sourceAccountUser);
         userRepository.save(destinationAccountUser);
+
+        TransactionRequestDTO transactionRequestDTO = userMapper.toTransactionRequestDTO(sourceAccountUser, transferInfo.getAmount());
+        transactionService.saveTransaction(transactionRequestDTO);
 
         return userMapper.toTransferResponse(sourceAccountUser);
     }
