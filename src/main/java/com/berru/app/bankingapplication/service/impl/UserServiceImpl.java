@@ -12,6 +12,7 @@ import com.berru.app.bankingapplication.repository.TransactionRepository;
 import com.berru.app.bankingapplication.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,16 +24,18 @@ public class UserServiceImpl implements UserService {
     private final EmailMapper emailMapper;
     private final TransactionService transactionService;
     private final TransactionRepository transactionRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserServiceImpl(UserMapper userMapper, UserRepository userRepository,
-                           EmailService emailService, EmailMapper emailMapper, TransactionService transactionService, TransactionRepository transactionRepository) {
+                           EmailService emailService, EmailMapper emailMapper, TransactionService transactionService, TransactionRepository transactionRepository,PasswordEncoder passwordEncoder) {
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.emailMapper = emailMapper;
         this.transactionService = transactionService;
         this.transactionRepository = transactionRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -42,6 +45,10 @@ public class UserServiceImpl implements UserService {
         }
 
         User newUser = userMapper.toEntity(createUserRequestDTO);
+
+        String encodedPassword = passwordEncoder.encode(createUserRequestDTO.getPassword());
+        newUser.setPassword(encodedPassword);
+
         User savedUser = userRepository.save(newUser);
 
         EmailDetails emailDetails = emailMapper.toEmailDetails(savedUser);
