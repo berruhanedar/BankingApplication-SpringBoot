@@ -38,6 +38,9 @@ public class CreateUserRequestDTO {
     @Email(message = "Email should be valid")
     private String email;
 
+    @NotNull(message = "Password cannot be null")
+    private String password;
+
     @NotNull(message = "Phone number cannot be null")
     @Size(max = 20, message = "Phone number cannot exceed 20 characters")
     private String phoneNumber;
