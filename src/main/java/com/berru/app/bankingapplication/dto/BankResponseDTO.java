@@ -14,4 +14,7 @@ public class BankResponseDTO {
     private String responseMessage;
 
     private AccountInfo accountInfo;
+
+    private String token;
+
 }
