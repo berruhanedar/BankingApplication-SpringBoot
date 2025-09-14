@@ -1,5 +1,6 @@
 package com.berru.app.bankingapplication.service.impl;
 
+import com.berru.app.bankingapplication.config.JwtTokenProvider;
 import com.berru.app.bankingapplication.dto.*;
 import com.berru.app.bankingapplication.entity.User;
 import com.berru.app.bankingapplication.exception.BadRequestException;
@@ -11,7 +12,11 @@ import com.berru.app.bankingapplication.mapper.UserMapper;
 import com.berru.app.bankingapplication.repository.TransactionRepository;
 import com.berru.app.bankingapplication.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +30,11 @@ public class UserServiceImpl implements UserService {
     private final TransactionService transactionService;
     private final TransactionRepository transactionRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Autowired
     public UserServiceImpl(UserMapper userMapper, UserRepository userRepository,
-                           EmailService emailService, EmailMapper emailMapper, TransactionService transactionService, TransactionRepository transactionRepository,PasswordEncoder passwordEncoder) {
+                           EmailService emailService, EmailMapper emailMapper, TransactionService transactionService, TransactionRepository transactionRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.emailService = emailService;
@@ -36,6 +42,8 @@ public class UserServiceImpl implements UserService {
         this.transactionService = transactionService;
         this.transactionRepository = transactionRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -51,8 +59,8 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(newUser);
 
-        EmailDetails emailDetails = emailMapper.toEmailDetails(savedUser);
-        emailService.sendEmailAlert(emailDetails);
+        // EmailDetails emailDetails = emailMapper.toEmailDetails(savedUser);
+        // emailService.sendEmailAlert(emailDetails);
 
         return userMapper.toBankResponse(savedUser);
     }
@@ -138,5 +146,24 @@ public class UserServiceImpl implements UserService {
         transactionService.saveTransaction(transactionRequestDTO);
 
         return userMapper.toTransferResponse(sourceAccountUser);
+    }
+
+    @Override
+    public BankResponseDTO login(LoginRequestDTO loginRequestDTO) {
+       Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequestDTO.getEmail(),
+                        loginRequestDTO.getPassword()
+                )
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String token = jwtTokenProvider.generateToken(authentication);
+
+        User user = userRepository.findByEmail(loginRequestDTO.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException(loginRequestDTO.getEmail() + " not found"));
+
+        return userMapper.toLoginResponse(user, token);
     }
 }

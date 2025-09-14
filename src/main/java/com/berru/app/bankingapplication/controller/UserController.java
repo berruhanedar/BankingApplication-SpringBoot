@@ -1,9 +1,6 @@
 package com.berru.app.bankingapplication.controller;
 
-import com.berru.app.bankingapplication.dto.BankResponseDTO;
-import com.berru.app.bankingapplication.dto.CreateUserRequestDTO;
-import com.berru.app.bankingapplication.dto.CreditDebitRequestDTO;
-import com.berru.app.bankingapplication.dto.TransferInfoRequestDTO;
+import com.berru.app.bankingapplication.dto.*;
 import com.berru.app.bankingapplication.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +20,12 @@ public class UserController {
     @PostMapping
     public ResponseEntity<BankResponseDTO> createAccount(@RequestBody CreateUserRequestDTO createUserRequestDTO) {
         BankResponseDTO response = userService.createAccount(createUserRequestDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<BankResponseDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) {
+        BankResponseDTO response = userService.login(loginRequestDTO);
         return ResponseEntity.ok(response);
     }
 
