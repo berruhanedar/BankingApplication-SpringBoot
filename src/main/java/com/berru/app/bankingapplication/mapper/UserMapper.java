@@ -2,13 +2,14 @@ package com.berru.app.bankingapplication.mapper;
 
 import com.berru.app.bankingapplication.dto.*;
 import com.berru.app.bankingapplication.entity.User;
+import com.berru.app.bankingapplication.enums.Role;
 import com.berru.app.bankingapplication.utils.AccountUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.math.BigDecimal;
 
-@Mapper(componentModel = "spring", imports = AccountUtils.class)
+@Mapper(componentModel = "spring", imports = {AccountUtils.class, Role.class})
 public interface UserMapper {
 
     @Mapping(target = "accountNumber", expression = "java(AccountUtils.generateAccountNumber())")
@@ -17,6 +18,7 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "modifiedAt", ignore = true)
+    @Mapping(target = "role", expression = "java(Role.ROLE_USER)")
     User toEntity(CreateUserRequestDTO dto);
 
     UserResponseDTO toDTO(User user);
@@ -46,4 +48,11 @@ public interface UserMapper {
     @Mapping(target = "transactionType", constant = "CREDIT")
     @Mapping(target = "status", constant = "SUCCESS")
     TransactionRequestDTO toTransactionRequestDTO(User user, BigDecimal amount);
+
+    @Mapping(target = "responseMessage", constant = "Login successful")
+    @Mapping(target = "accountInfo", expression = "java(toAccountInfo(user))")
+    @Mapping(target = "token", source = "jwtToken")
+    BankResponseDTO toLoginResponse(User user, String jwtToken);
+
+
 }
